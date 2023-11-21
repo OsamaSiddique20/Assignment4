@@ -6,7 +6,7 @@ import {
   Button,
   Modal,
   ScrollView,
-  Pressable,
+  Pressable,Alert
 } from "react-native";
 import { useEffect, useState } from "react";
 
@@ -75,9 +75,8 @@ export default function Home({ navigation }) {
   //************************************* */
 
   const create = async () => {
-    console.log(itemName,price,value)
-          
-          
+        console.log(itemName,price,value)
+  
           const docRef = doc(collection(db, 'Assignment4'), itemName)
           await setDoc(docRef, {name:itemName,price:price,color:value})
           console.log('Document written with ID: ', itemName)
@@ -88,18 +87,29 @@ export default function Home({ navigation }) {
 
   //delete row
   const deleteUser = async (id) => {
-    
-  };
+    await deleteDoc(doc(db, "Assignment4", id));
+    console.log('Document deleted sucessfully with doc id',id)
+    Alert.alert('Data deleted');
+  }
 
   //************************************* */
-  const edit = (obj) => {
-    
+  const edit = async(id) => {
+    setModalVisible(true)
+    console.log(id)
+    const docRef = doc(db, 'Assignment4', id);
+    const docSnap = (await getDoc(docRef)).data()
+    setColor(docSnap.color)
+    setItemName(docSnap.name)
+    setPrice(docSnap.price)
+   console.log(docSnap)
   };
   //************************************* */
 
   const update = async (id) => {
-   
-  };
+    setModalVisible(false)
+    create()
+    clear()
+  }
   //************************************* */
 
   const friend = (doc) => {
@@ -129,7 +139,7 @@ export default function Home({ navigation }) {
           </Text>
         </View>
       </View>
-    );
+    )
   }
 
   return (
@@ -144,33 +154,44 @@ export default function Home({ navigation }) {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
              
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                }}
-              >
-                <TextInput
-                  style={styles.input}
-                  value={itemName}
-                  onChangeText={text =>  setItemName(text)}
-                  editable={false}
-                  placeholder="Item Name"
-                  autoComplete="false"
-                  autoCorrect="false"
-                  autoFocus={true}
-                />
-                <TextInput
-                  style={styles.input}
-                  value={price}
-                  onChangeText={text =>  setPrice(text)}
-                  placeholder="Price"
-                  autoComplete="false"
-                  autoCorrect="false"
-                  autoFocus={true}
-                />
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+              }}
+            >
+            <TextInput
+              style={styles.input}
+              value={itemName}
+              onChangeText={text =>  setItemName(text)}
+              editable={false}
+              placeholder="Item Name"
+              autoComplete="false"
+              autoCorrect="false"
+              autoFocus={true}
+            />
+            <TextInput
+              style={styles.input}
+              value={price}
+              onChangeText={text =>  setPrice(text)}
+              placeholder="Price"
+              autoComplete="false"
+              autoCorrect="false"
+            
+            />
 
+          <Dropdown
+              data={data}
+              style={[styles.input, { width: "100%" }]}
+              search
+              selectedTextStyle={{ fontSize: 20 }}
+              searchPlaceholder="Search..."
+              value={value}
+              onChange={item => { setValue(item.value);}}
+              labelField="label"
+              valueField="value"
+            />
 
               </View>
               <View style={{ flexDirection: "row", margin: 10 }}>
@@ -183,12 +204,14 @@ export default function Home({ navigation }) {
                 <Pressable
                   style={[styles.button, styles.buttonOpen]}
                 >
-                  <Text style={styles.textStyle}>Save</Text>
+                  <Text style={styles.textStyle} onPress={update}>Save</Text>
                 </Pressable>
               </View>
             </View>
           </View>
         </Modal>
+
+
         <View style={{ width: "95%" }}>
           <Card>
             <Card.Title
@@ -210,35 +233,35 @@ export default function Home({ navigation }) {
                 flexWrap: "wrap",
               }}
             >
-                <TextInput
-                    placeholder='Item Name'
-                    value={itemName}
-                    onChangeText={text =>  setItemName(text) }
-                    style={styles.input}
-                    autoCorrect={false}
-                
-                />
-                <TextInput
-                  style={styles.input}
-                  value={price}
-                  onChangeText={text =>  setPrice(text)}
-                  placeholder="Price"
-                  autoComplete="false"
-                  autoCorrect="false"
-                
-                />
+            <TextInput
+                placeholder='Item Name'
+                value={itemName}
+                onChangeText={text =>  setItemName(text) }
+                style={styles.input}
+                autoCorrect={false}
+            
+            />
+            <TextInput
+              style={styles.input}
+              value={price}
+              onChangeText={text =>  setPrice(text)}
+              placeholder="Price"
+              autoComplete="false"
+              autoCorrect="false"
+            
+            />
 
-            <Dropdown
-                data={data}
-                style={[styles.input, { width: "100%" }]}
-                search
-                selectedTextStyle={{ fontSize: 20 }}
-                searchPlaceholder="Search..."
-                value={value}
-                onChange={item => { setValue(item.value);}}
-                labelField="label"
-                valueField="value"
-              />
+          <Dropdown
+              data={data}
+              style={[styles.input, { width: "100%" }]}
+              search
+              selectedTextStyle={{ fontSize: 20 }}
+              searchPlaceholder="Search..."
+              value={value}
+              onChange={item => { setValue(item.value);}}
+              labelField="label"
+              valueField="value"
+            />
               
             </View>
             <Button title="Add" onPress={create} />
@@ -259,16 +282,18 @@ export default function Home({ navigation }) {
             </Card.Title>
 
             {fetchedData.map((x)=>  
+            <View>
           <View style={{ flexDirection: "row", justifyContent: "space-around"}}>
             <Avatar rounded containerStyle={{backgroundColor:x.color,width:30,height:30}} title={x.name[0]}
             />
     
             <Text style={{width:100}}>{x.name}</Text>
             <Text style={{width:25}}>{x.price}</Text>
-            <Text style={{color:'#8B8000'}}>Edit</Text>
-            <Text style={{color:'red'}}>Delete</Text>
+            <Text style={{color:'#8B8000'}} onPress={()=>edit(x.name)}>Edit</Text>
+            <Text style={{color:'red'}} onPress={()=>deleteUser(x.name)}>Delete</Text>
           </View>
-
+          <View><Text></Text></View>
+          </View>
             )}
          
             <Card.Divider />
@@ -281,7 +306,7 @@ export default function Home({ navigation }) {
       
       </View>
     </ScrollView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
