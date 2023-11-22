@@ -18,7 +18,7 @@ const Welcome = ({ navigation }) => {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={()=>navigation.navigate('Home')}
+        onPress={()=>navigation.replace('Home')}
       >
         <Text style={styles.buttonText}
         

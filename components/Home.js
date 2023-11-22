@@ -8,7 +8,7 @@ import {
   ScrollView,
   Pressable,Alert
 } from "react-native";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { signOut } from "firebase/auth";
 import {doc, setDoc,getDocs, collection,deleteDoc, addDoc,docRef,onSnapshot,getDoc} from "firebase/firestore";
@@ -36,16 +36,21 @@ export default function Home({ navigation }) {
     { label: "Black", value: "black" },
     { label: "Yellow", value: "yellow" },
   ]
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <Button
+          onPress={() => navigation.navigate("LoginScreen")}
+          title="Sign Out"
+        />
+      ),
+      headerTitleAlign: "center",
+    });
 
+  }, [navigation]);
 
   useEffect(()=>
   {
-      // navigation.setOptions(
-      //     {headerBackTitleVisible: false,s
-      //         headerLeft: () => <AntDesign name='logout'
-      //             size={20} onPress={() => navigation.replace("Login")}
-      //             />
-      //     })
 
           const collectionRef = collection(db, 'Assignment4');
 
@@ -75,7 +80,7 @@ export default function Home({ navigation }) {
   //************************************* */
 
   const create = async () => {
-        console.log(itemName,price,value)
+          console.log(itemName,price,value)
   
           const docRef = doc(collection(db, 'Assignment4'), itemName)
           await setDoc(docRef, {name:itemName,price:price,color:value})
@@ -87,9 +92,11 @@ export default function Home({ navigation }) {
 
   //delete row
   const deleteUser = async (id) => {
+    alert('Data deleted');
     await deleteDoc(doc(db, "Assignment4", id));
     console.log('Document deleted sucessfully with doc id',id)
-    Alert.alert('Data deleted');
+    
+    clear()
   }
 
   //************************************* */
@@ -98,15 +105,18 @@ export default function Home({ navigation }) {
     console.log(id)
     const docRef = doc(db, 'Assignment4', id);
     const docSnap = (await getDoc(docRef)).data()
-    setColor(docSnap.color)
+    setValue(docSnap.color)
     setItemName(docSnap.name)
     setPrice(docSnap.price)
-   console.log(docSnap)
+    console.log(docSnap)
+    
   };
   //************************************* */
 
-  const update = async (id) => {
+  const update = async  => {
+    alert('Data Updated');
     setModalVisible(false)
+
     create()
     clear()
   }
@@ -167,8 +177,7 @@ export default function Home({ navigation }) {
               onChangeText={text =>  setItemName(text)}
               editable={false}
               placeholder="Item Name"
-              autoComplete="false"
-              autoCorrect="false"
+
               autoFocus={true}
             />
             <TextInput
@@ -176,8 +185,7 @@ export default function Home({ navigation }) {
               value={price}
               onChangeText={text =>  setPrice(text)}
               placeholder="Price"
-              autoComplete="false"
-              autoCorrect="false"
+      
             
             />
 
@@ -238,16 +246,14 @@ export default function Home({ navigation }) {
                 value={itemName}
                 onChangeText={text =>  setItemName(text) }
                 style={styles.input}
-                autoCorrect={false}
-            
+          
             />
             <TextInput
               style={styles.input}
               value={price}
               onChangeText={text =>  setPrice(text)}
               placeholder="Price"
-              autoComplete="false"
-              autoCorrect="false"
+
             
             />
 
@@ -280,25 +286,65 @@ export default function Home({ navigation }) {
             >
               Item List
             </Card.Title>
+            <View
+              style={{ flexDirection: "column", justifyContent: "space-around"}}
+            >
+              <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 15 }}>
+                <Text style={{ fontWeight: 'bold'}}>Icon</Text>
+                <Text style={{ marginLeft: 30, fontWeight: 'bold' }}>Name</Text>
+                <Text style={{ marginLeft: 30, fontWeight: 'bold'  }}>Price</Text>
+                <Text style={{ marginLeft: 30, fontWeight: 'bold' }}>Edit</Text>
+                <Text style={{ marginLeft: 30, fontWeight: 'bold' }}>Del</Text>
+               
+              </View>
 
-            {fetchedData.map((x)=>  
+            </View> 
+
+            {fetchedData.map((x,i)=>  
             <View>
-          <View style={{ flexDirection: "row", justifyContent: "space-around"}}>
-            <Avatar rounded containerStyle={{backgroundColor:x.color,width:30,height:30}} title={x.name[0]}
-            />
-    
-            <Text style={{width:100}}>{x.name}</Text>
-            <Text style={{width:25}}>{x.price}</Text>
-            <Text style={{color:'#8B8000'}} onPress={()=>edit(x.name)}>Edit</Text>
-            <Text style={{color:'red'}} onPress={()=>deleteUser(x.name)}>Delete</Text>
-          </View>
-          <View><Text></Text></View>
+<View style={{ flexDirection: "row", justifyContent: "space-around" }} key={i}>
+  <Avatar
+    rounded
+    containerStyle={{ backgroundColor: x.color, height: 30, width: 30,marginLeft:5 }}
+    title={x.name[0]}
+  />
+
+  <Text style={{ width: 60, textAlign: 'center',marginLeft:30 }}>{x.name}</Text>
+
+  <Text style={{ width: 60, textAlign: 'center',marginLeft:30 }}>
+    {(x.price - (x.price * 0.10)).toFixed(2) + '$'}
+  </Text>
+
+  <Text
+    style={{
+      color: 'orange',
+      width: 30,
+      textAlign: 'center',
+      marginLeft:30
+    }}
+    onPress={() => edit(x.name)}
+  >
+    Edit
+  </Text>
+
+  <Text
+    style={{
+      color: 'red',
+      width: 50,
+      textAlign: 'center',
+      marginLeft:30
+    }}
+    onPress={() => deleteUser(x.name)}
+  >
+    Delete
+  </Text>
+</View>
+
+          <View key={i+1}><Text></Text></View>
+          <Card.Divider />
           </View>
             )}
-         
-            <Card.Divider />
 
-            
           </Card>
         </View>
      
