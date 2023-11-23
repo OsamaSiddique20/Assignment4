@@ -21,7 +21,7 @@ import { Dropdown } from "react-native-element-dropdown";
 
 export default function Home({ navigation }) {
   const [itemName, setItemName] = useState();
-  const [price, setPrice] = useState(0);
+  const [price, setPrice] = useState();
   const [color, setColor] = useState();
   const [ob, setOb] = useState();
   const [value, setValue] = useState(null);
@@ -38,6 +38,7 @@ export default function Home({ navigation }) {
   ]
   useEffect(() => {
     navigation.setOptions({
+      headerLeft: () => null, 
       headerTitle: () => (
         <Button
           onPress={() => navigation.navigate("LoginScreen")}
@@ -46,12 +47,12 @@ export default function Home({ navigation }) {
       ),
       headerTitleAlign: "center",
     });
-
   }, [navigation]);
+  
+  
 
   useEffect(()=>
   {
-
           const collectionRef = collection(db, 'Assignment4');
 
           const unsubscribe = onSnapshot(collectionRef, (snapshot) => {
@@ -73,7 +74,7 @@ export default function Home({ navigation }) {
   const clear = () => {
    
     setItemName('')
-    setPrice(0)
+    setPrice(null)
     setValue(null)
     setOb(null)
   }
@@ -301,44 +302,44 @@ export default function Home({ navigation }) {
             </View> 
 
             {fetchedData.map((x,i)=>  
-            <View>
-<View style={{ flexDirection: "row", justifyContent: "space-around" }} key={i}>
-  <Avatar
-    rounded
-    containerStyle={{ backgroundColor: x.color, height: 30, width: 30,marginLeft:5 }}
-    title={x.name[0]}
-  />
+            <View key={i}>
+          <View style={{ flexDirection: "row", justifyContent: "space-around" }} >
+            <Avatar
+              rounded
+              containerStyle={{ backgroundColor: x.color, height: 30, width: 30,marginLeft:5 }}
+              title={x.name[0]}
+            />
 
-  <Text style={{ width: 60, textAlign: 'center',marginLeft:30 }}>{x.name}</Text>
+            <Text style={{ width: 60, textAlign: 'center',marginLeft:30 }}>{x.name}</Text>
 
-  <Text style={{ width: 60, textAlign: 'center',marginLeft:30 }}>
-    {(x.price - (x.price * 0.10)).toFixed(2) + '$'}
-  </Text>
+            <Text style={{ width: 60, textAlign: 'center',marginLeft:30 }}>
+              {(x.price - (x.price * 0.10)).toFixed(2) + '$'}
+            </Text>
 
-  <Text
-    style={{
-      color: 'orange',
-      width: 30,
-      textAlign: 'center',
-      marginLeft:30
-    }}
-    onPress={() => edit(x.name)}
-  >
-    Edit
-  </Text>
+            <Text
+              style={{
+                color: 'orange',
+                width: 30,
+                textAlign: 'center',
+                marginLeft:30
+              }}
+              onPress={() => edit(x.name)}
+            >
+              Edit
+            </Text>
 
-  <Text
-    style={{
-      color: 'red',
-      width: 50,
-      textAlign: 'center',
-      marginLeft:30
-    }}
-    onPress={() => deleteUser(x.name)}
-  >
-    Delete
-  </Text>
-</View>
+            <Text
+              style={{
+                color: 'red',
+                width: 50,
+                textAlign: 'center',
+                marginLeft:30
+              }}
+              onPress={() => deleteUser(x.name)}
+            >
+              Delete
+            </Text>
+          </View>
 
           <View key={i+1}><Text></Text></View>
           <Card.Divider />
